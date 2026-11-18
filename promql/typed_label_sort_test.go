@@ -81,6 +81,24 @@ func TestCompareLabelValuesTypedTiesAndPrecision(t *testing.T) {
 		{"1e", "-Inf", 1},
 		{"NaN", "2024-01-02T00:00:00Z", 1},
 		{"1e+", "1e", 1},
+		{"1e", "1e+", -1},
+		// A complete exponent is numeric; signs are allowed.
+		{"1e3", "999", 1},
+		{"+1e3", "999", 1},
+		{"-.5", "0", -1},
+		// Durations and bytes also take signed, scientific coefficients.
+		{"-.5e2s", "-49s", -1},
+		{"-.5e2s", "-51s", 1},
+		{"+1.5e1m", "14m", 1},
+		{"+1.5e3B", "1499B", 1},
+		{"-1e3B", "-999B", -1},
+		{"1e100s", "9e99s", 1},
+		{"9e99KB", "1e100B", 1},
+		// Bare exponents are untyped for durations and bytes too.
+		{"1es", "2024-01-02T00:00:00Z", 1},
+		{"1e+s", "2024-01-02T00:00:00Z", 1},
+		{"1eB", "2024-01-02T00:00:00Z", 1},
+		{"1e+B", "2024-01-02T00:00:00Z", 1},
 		// Invalid semver/IP fall back to untyped.
 		{"1.2.3.4.5", "10.0.0.1", 1},
 		{"01.2.3", "1.2.3", 1},
