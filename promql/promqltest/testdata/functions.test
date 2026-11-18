@@ -880,6 +880,121 @@ eval instant at 50m sort_by_label(node_uname_info, "release")
 	node_uname_info{job="node_exporter", instance="4m5", release="1.11.3"} 100
 	node_uname_info{job="node_exporter", instance="4m1000", release="1.111.3"} 100
 
+# Tests for typed sort_by_label/sort_by_label_desc.
+clear
+load 5m
+	typed_values{v="abc10"}	0+10x10
+	typed_values{v="10.0.0.10"}	0+10x10
+	typed_values{v="2m"}	0+10x10
+	typed_values{v="1e3"}	0+10x10
+	typed_values{v=""}	0+10x10
+	typed_values{v="2001:db8::/32"}	0+10x10
+	typed_values{v="v1.2"}	0+10x10
+	typed_values{v="::ffff:10.0.0.9"}	0+10x10
+	typed_values{v="1KB"}	0+10x10
+	typed_values{v="-Inf"}	0+10x10
+	typed_values{v="2025-06-01T00:00:00Z"}	0+10x10
+	typed_values{v="10"}	0+10x10
+	typed_values{v="2.0.0"}	0+10x10
+	typed_values{v=" 10"}	0+10x10
+	typed_values{v="90s"}	0+10x10
+	typed_values{v="NaN"}	0+10x10
+	typed_values{v="10.0.0.0/24"}	0+10x10
+	typed_values{v="0"}	0+10x10
+	typed_values{v="+1.5e3B"}	0+10x10
+	typed_values{v="1.10.0"}	0+10x10
+	typed_values{v="::1"}	0+10x10
+	typed_values{v="-2"}	0+10x10
+	typed_values{v="2024-01-02T00:00:00Z"}	0+10x10
+	typed_values{v="500B"}	0+10x10
+	typed_values{v="10.0.0.0/8"}	0+10x10
+	typed_values{v="-.5e2s"}	0+10x10
+	typed_values{v="abc2"}	0+10x10
+	typed_values{v="+Inf"}	0+10x10
+	typed_values{v="2.0.0-alpha"}	0+10x10
+	typed_values{v="1e"}	0+10x10
+	typed_values{v="10.0.0.2"}	0+10x10
+	typed_values{v="v1.2.3"}	0+10x10
+	typed_values{v=" 2"}	0+10x10
+	typed_values{v="2"}	0+10x10
+	typed_values{v="1KiB"}	0+10x10
+
+eval instant at 50m sort_by_label(typed_values, "v")
+	expect ordered
+	typed_values{v=" 2"} 100
+	typed_values{v=" 10"} 100
+	typed_values{v="+Inf"} 100
+	typed_values{v="-2"} 100
+	typed_values{v="0"} 100
+	typed_values{v="2"} 100
+	typed_values{v="10"} 100
+	typed_values{v="1e3"} 100
+	typed_values{v="-Inf"} 100
+	typed_values{v="-.5e2s"} 100
+	typed_values{v="90s"} 100
+	typed_values{v="2m"} 100
+	typed_values{v="500B"} 100
+	typed_values{v="1KB"} 100
+	typed_values{v="1KiB"} 100
+	typed_values{v="+1.5e3B"} 100
+	typed_values{v="v1.2.3"} 100
+	typed_values{v="1.10.0"} 100
+	typed_values{v="2.0.0-alpha"} 100
+	typed_values{v="2.0.0"} 100
+	typed_values{v="10.0.0.2"} 100
+	typed_values{v="10.0.0.10"} 100
+	typed_values{v="::1"} 100
+	typed_values{v="::ffff:10.0.0.9"} 100
+	typed_values{v="10.0.0.0/8"} 100
+	typed_values{v="10.0.0.0/24"} 100
+	typed_values{v="2001:db8::/32"} 100
+	typed_values{v="2024-01-02T00:00:00Z"} 100
+	typed_values{v="2025-06-01T00:00:00Z"} 100
+	typed_values{} 100
+	typed_values{v="1e"} 100
+	typed_values{v="NaN"} 100
+	typed_values{v="abc2"} 100
+	typed_values{v="abc10"} 100
+	typed_values{v="v1.2"} 100
+
+eval instant at 50m sort_by_label_desc(typed_values, "v")
+	expect ordered
+	typed_values{v="v1.2"} 100
+	typed_values{v="abc10"} 100
+	typed_values{v="abc2"} 100
+	typed_values{v="NaN"} 100
+	typed_values{v="1e"} 100
+	typed_values{} 100
+	typed_values{v="2025-06-01T00:00:00Z"} 100
+	typed_values{v="2024-01-02T00:00:00Z"} 100
+	typed_values{v="2001:db8::/32"} 100
+	typed_values{v="10.0.0.0/24"} 100
+	typed_values{v="10.0.0.0/8"} 100
+	typed_values{v="::ffff:10.0.0.9"} 100
+	typed_values{v="::1"} 100
+	typed_values{v="10.0.0.10"} 100
+	typed_values{v="10.0.0.2"} 100
+	typed_values{v="2.0.0"} 100
+	typed_values{v="2.0.0-alpha"} 100
+	typed_values{v="1.10.0"} 100
+	typed_values{v="v1.2.3"} 100
+	typed_values{v="+1.5e3B"} 100
+	typed_values{v="1KiB"} 100
+	typed_values{v="1KB"} 100
+	typed_values{v="500B"} 100
+	typed_values{v="2m"} 100
+	typed_values{v="90s"} 100
+	typed_values{v="-.5e2s"} 100
+	typed_values{v="-Inf"} 100
+	typed_values{v="1e3"} 100
+	typed_values{v="10"} 100
+	typed_values{v="2"} 100
+	typed_values{v="0"} 100
+	typed_values{v="-2"} 100
+	typed_values{v="+Inf"} 100
+	typed_values{v=" 10"} 100
+	typed_values{v=" 2"} 100
+
 # Tests for double_exponential_smoothing
 clear
 
