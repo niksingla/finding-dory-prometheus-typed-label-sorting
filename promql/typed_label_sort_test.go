@@ -102,6 +102,26 @@ func TestCompareLabelValuesTypedTiesAndPrecision(t *testing.T) {
 		// Invalid semver/IP fall back to untyped.
 		{"1.2.3.4.5", "10.0.0.1", 1},
 		{"01.2.3", "1.2.3", 1},
+		// Only an optional lowercase v prefixes a semantic version.
+		{"v1.2.3", "1.2.4", -1},
+		{"V1.2.3", "1.2.3", 1},
+		{"v1.2", "1.2.3", 1},
+		{"vv1.2.3", "1.2.3", 1},
+		{"v01.2.3", "1.2.3", 1},
+		// IPv4 before IPv6; IPv4-mapped IPv6 literals stay IPv6.
+		{"255.255.255.255", "::", -1},
+		{"::ffff:10.0.0.1", "255.255.255.255", 1},
+		{"::ffff:10.0.0.1", "::1", 1},
+		{"::ffff:10.0.0.1", "10.0.0.2", 1},
+		// CIDRs: equal network address, smaller prefix first.
+		{"10.0.0.0/8", "10.0.0.0/24", -1},
+		{"10.0.0.0/24", "10.0.0.0/8", 1},
+		{"2001:db8::/32", "2001:db8::/48", -1},
+		{"::ffff:10.0.0.0/120", "10.0.0.0/8", 1},
+		// Empty values are untyped and sort among plain strings.
+		{"", "2024-01-02T00:00:00Z", 1},
+		{"", "abc", -1},
+		{"", "1.2.3", 1},
 	}
 	for _, tc := range cases {
 		require.Equal(t, tc.want, sign(compareLabelValues(tc.a, tc.b)), "%q vs %q", tc.a, tc.b)
